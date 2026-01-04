@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>NGL Spam Sender</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap');
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  height:100vh;
+  background:linear-gradient(135deg,#020617,#020617,#0f172a);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:'Orbitron',sans-serif;
+  color:#e5e7eb;
+}
+
+.card{
+  background:rgba(2,6,23,.85);
+  backdrop-filter:blur(12px);
+  border:1px solid #334155;
+  border-radius:16px;
+  padding:24px;
+  width:100%;
+  max-width:380px;
+  box-shadow:0 0 40px rgba(34,197,94,.15);
+  animation:fadeUp .8s ease;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+h1{
+  text-align:center;
+  font-size:20px;
+  margin-bottom:10px;
+  color:#22c55e;
+}
+
+input,textarea{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border-radius:10px;
+  background:#020617;
+  border:1px solid #334155;
+  color:white;
+  font-size:13px;
+}
+
+textarea{resize:none;height:70px}
+
+.controls{
+  display:flex;
+  gap:10px;
+}
+
+button{
+  flex:1;
+  margin-top:15px;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.start{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:black;
+}
+.stop{
+  background:linear-gradient(135deg,#ef4444,#b91c1c);
+  color:white;
+}
+
+button:hover{transform:scale(1.03)}
+
+.status{
+  margin-top:12px;
+  font-size:12px;
+  text-align:center;
+  color:#94a3b8;
+}
+
+.progress{
+  margin-top:8px;
+  height:6px;
+  width:100%;
+  background:#020617;
+  border-radius:6px;
+  overflow:hidden;
+}
+.bar{
+  height:100%;
+  width:0%;
+  background:#22c55e;
+  transition:width .3s;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>NGL SPAM SENDER</h1>
+
+  <input id="user" placeholder="Username NGL (tanpa @)">
+  <textarea id="msg" placeholder="Pesan spam..."></textarea>
+
+  <div class="controls">
+    <input id="count" type="number" placeholder="Jumlah" value="5">
+    <input id="delay" type="number" placeholder="Delay ms" value="3000">
+  </div>
+
+  <div class="controls">
+    <button class="start" onclick="start()">START</button>
+    <button class="stop" onclick="stop()">STOP</button>
+  </div>
+
+  <div class="status" id="status">Status: Idle</div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+</div>
+
+<script>
+let interval, sent=0;
+
+function start(){
+  const user=document.getElementById("user").value.trim();
+  const msg=document.getElementById("msg").value.trim();
+  const count=parseInt(document.getElementById("count").value);
+  const delay=parseInt(document.getElementById("delay").value);
+
+  if(!user||!msg||!count||!delay){
+    alert("Lengkapi semua field!");
+    return;
+  }
+
+  sent=0;
+  document.getElementById("status").innerText="Status: Running...";
+  document.getElementById("bar").style.width="0%";
+
+  interval=setInterval(()=>{
+    if(sent>=count){
+      stop();
+      document.getElementById("status").innerText="Status: Selesai";
+      return;
+    }
+
+    const f=document.createElement("form");
+    f.method="POST";
+    f.action="https://ngl.link/"+user;
+    f.target="_blank";
+
+    f.innerHTML=`
+      <input name="question" value="${msg}">
+      <input name="deviceId" value="${Math.random().toString(36).slice(2)}">
+    `;
+
+    document.body.appendChild(f);
+    f.submit();
+    document.body.removeChild(f);
+
+    sent++;
+    document.getElementById("status").innerText=
+      `Mengirim ${sent}/${count}`;
+    document.getElementById("bar").style.width=
+      (sent/count*100)+"%";
+
+  },delay);
+}
+
+function stop(){
+  clearInterval(interval);
+}
+</script>
+
+</body>
+</html>
